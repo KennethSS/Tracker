@@ -2,17 +2,20 @@ package com.solar.tracker
 
 import android.Manifest
 import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.solar.tracker.library.DeviceUtil
 import com.solar.tracker.library.PermissionHelper
+import com.solar.tracker.library.PermissionHelper.requestPermission
 import com.solar.tracker.library.Tracker
 import java.security.Permission
 
@@ -46,7 +49,11 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.request_location).let { btn ->
             btn.setOnClickListener {
-                tracker.getLocation()
+                tracker.getLocation { latitude, longitude, ->
+                    findViewById<TextView>(R.id.location).let { tv ->
+                        tv.text = "위도: $latitude  경도: $longitude"
+                    }
+                }
             }
         }
 
@@ -58,8 +65,16 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+
+
         if (DeviceUtil.isAndroid6Later()) {
+            Log.d("MainActivity", shouldShowRequestPermissionRationale(ACCESS_FINE_LOCATION).toString())
             if (shouldShowRequestPermissionRationale(ACCESS_FINE_LOCATION)) {
+                Dialog(this).run {
+                    setTitle("위치 권한을 허용해야 합니다 이동?")
+                    show()
+                }
+            } else {
 
             }
         } else {

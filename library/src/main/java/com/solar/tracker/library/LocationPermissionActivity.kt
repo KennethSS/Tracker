@@ -1,6 +1,7 @@
 package com.solar.tracker.library
 
 import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -25,12 +26,20 @@ class LocationPermissionActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        finish()
         Log.d(TAG, "onRequestPermissionsResult : $requestCode")
         permissions.forEach {
-            Log.d(TAG, "onRequestPermissionsResult : $it")
+                val p = shouldShowRequestPermissionRationale(it)
+            Log.d(TAG, "onRequestPermissionsResult : $it ${p}")
         }
         grantResults.forEach {
-            Log.d(TAG, "onRequestPermissionsResult : $it")
+            if (it == PackageManager.PERMISSION_DENIED) {
+
+                Log.d(TAG, "onRequestPermissionsResult : $it ")
+            } else {
+                Log.d(TAG, "onRequestPermissionsResult : $it")
+            }
+
         }
     }
 
