@@ -32,7 +32,7 @@ class Tracker(private val context: Context) : LocationListener{
             if (isGranted) {
                 provideLocationEnable { isProvide ->
                     if (isProvide) {
-                        googleServiceLocation.getLastLocation { LocationResult(it) }
+                        googleServiceLocation.getLastLocation { result(LocationResult(it)) }
 
                         try {
                             //lm.getLastKnownLocation(GPS_PROVIDER)
