@@ -63,7 +63,9 @@ class MainActivity : AppCompatActivity() {
                             }
                         }
                         is ErrorResult -> {
-
+                            findViewById<TextView>(R.id.location).let { tv ->
+                                tv.text = "Code: ${result.code}  Msg: ${result.msg}"
+                            }
                         }
                     }
                 }
