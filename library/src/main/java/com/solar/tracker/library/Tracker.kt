@@ -21,16 +21,19 @@ class Tracker(private val context: Context) : LocationListener{
         result( lm.isProviderEnabled(NETWORK_PROVIDER) or lm.isProviderEnabled(GPS_PROVIDER))
     }
 
-    fun getLocation(result: (latitude: Double, longitude: Double) -> Unit) {
+    fun getLocation(result: (result: TrackerResult) -> Unit) {
         if (isOnGps()) {
 
+        } else {
+            result(ErrorResult(ERROR_CODE_GPS_OFF, "GPS is off"))
         }
 
         PermissionHelper.isGrantedLocationPermissions(context) { isGranted ->
             if (isGranted) {
                 provideLocationEnable { isProvide ->
                     if (isProvide) {
-                        googleServiceLocation.getLastLocation(result)
+                        googleServiceLocation.getLastLocation { LocationResult(it) }
+
                         try {
                             //lm.getLastKnownLocation(GPS_PROVIDER)
                             //lm.getLastKnownLocation(NETWORK_PROVIDER)
@@ -40,17 +43,10 @@ class Tracker(private val context: Context) : LocationListener{
                     }
                 }
             } else {
-                context.startActivity(Intent(context, LocationPermissionActivity::class.java))
+                result(ErrorResult(ERROR_CODE_PERMISSION_DENIED, "Location permission is denied"))
+                //context.startActivity(Intent(context, LocationPermissionActivity::class.java))
             }
         }
-    }
-
-    fun isOnNetwork() = lm.isProviderEnabled(NETWORK_PROVIDER)
-    fun isOnGps() = lm.isProviderEnabled(GPS_PROVIDER)
-
-    companion object {
-        private const val MIN_TIME_MS = 0L
-        private const val MIN_DISTANCE_M = 0F
     }
 
     override fun onLocationChanged(location: Location) {
@@ -59,7 +55,19 @@ class Tracker(private val context: Context) : LocationListener{
         }
     }
 
+    fun isOnNetwork() = lm.isProviderEnabled(NETWORK_PROVIDER)
+    fun isOnGps() = lm.isProviderEnabled(GPS_PROVIDER)
+
     private fun isVerifyLocation(location: Location?) = run {
         (location?.latitude?: 0.0) != 0.0 && (location?.longitude?:0.0) != 0.0
+    }
+
+    companion object {
+        private const val MIN_TIME_MS = 0L
+        private const val MIN_DISTANCE_M = 0F
+
+        const val REQUEST_CODE_LOCATION_PERMISSION = 100
+        const val ERROR_CODE_GPS_OFF = 400
+        const val ERROR_CODE_PERMISSION_DENIED = 401
     }
 }

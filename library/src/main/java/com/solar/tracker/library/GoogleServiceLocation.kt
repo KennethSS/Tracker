@@ -12,19 +12,17 @@ class GoogleServiceLocation(private val context: Context) {
         LocationServices.getFusedLocationProviderClient(context)
     }
 
-    fun getLastLocation(result: (latitude: Double, longitude: Double) -> Unit) {
+    fun getLastLocation(result: (location: Location) -> Unit) {
         fusedLocationClient.lastLocation
             .addOnCompleteListener {
 
             }
             .addOnSuccessListener { location: Location? ->
-                location?.let {
-                    result(it.latitude, it. longitude)
-                }
+                location?.let(result)
             }
     }
 
-    fun requestUpdateLocation(result: (latitude: Double, longitude: Double) -> Unit) {
+    /*fun requestUpdateLocation(result: (latitude: Double, longitude: Double) -> Unit) {
         fusedLocationClient.requestLocationUpdates(
             request,
             object: LocationCallback() {
@@ -46,7 +44,7 @@ class GoogleServiceLocation(private val context: Context) {
             },
             Looper.getMainLooper()
         )
-    }
+    }*/
 
     private val request: LocationRequest by lazy {
         LocationRequest.create()

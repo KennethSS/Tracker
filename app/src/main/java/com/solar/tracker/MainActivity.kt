@@ -11,15 +11,16 @@ import android.provider.Settings
 import android.util.Log
 import android.widget.Button
 import android.widget.TextView
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import com.solar.tracker.library.DeviceUtil
-import com.solar.tracker.library.PermissionHelper
+import com.solar.tracker.library.*
 import com.solar.tracker.library.PermissionHelper.requestPermission
-import com.solar.tracker.library.Tracker
 import java.security.Permission
 
 class MainActivity : AppCompatActivity() {
+
+
     val requestPermissionLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestPermission()
@@ -39,6 +40,11 @@ class MainActivity : AppCompatActivity() {
 
     private val tracker: Tracker by lazy { Tracker(this) }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -49,9 +55,16 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.request_location).let { btn ->
             btn.setOnClickListener {
-                tracker.getLocation { latitude, longitude, ->
-                    findViewById<TextView>(R.id.location).let { tv ->
-                        tv.text = "위도: $latitude  경도: $longitude"
+                tracker.getLocation { result ->
+                    when(result) {
+                        is LocationResult -> {
+                            findViewById<TextView>(R.id.location).let { tv ->
+                                tv.text = "위도: ${result.location.latitude}  경도: ${result.location.longitude}"
+                            }
+                        }
+                        is ErrorResult -> {
+
+                        }
                     }
                 }
             }
